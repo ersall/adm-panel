@@ -1,0 +1,203 @@
+<!doctype html>
+<html class="dark" lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ADM Panel">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#050505">
+<title>ADM Panel Aura Premium</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="apple-touch-icon" href="icon.png?v=200">
+<link rel="icon" href="icon.png?v=200">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script>
+tailwind.config={darkMode:"class",theme:{extend:{fontFamily:{sans:["Inter","sans-serif"]},colors:{gold:"#d6af5e",gold2:"#f4ca76",bg:"#050505",panel:"#111112"}}}}
+</script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#050505;color:#f6f0e6;font-family:Inter,sans-serif;overflow-x:hidden}
+body{padding-bottom:calc(92px + env(safe-area-inset-bottom));background:
+radial-gradient(circle at 12% -8%,rgba(214,175,94,.28),transparent 34%),
+radial-gradient(circle at 95% 12%,rgba(255,255,255,.07),transparent 26%),
+linear-gradient(155deg,#030303,#090909 58%,#171106)}
+.aura{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.aura:before{content:"";position:absolute;width:420px;height:420px;border-radius:999px;background:rgba(214,175,94,.11);filter:blur(60px);left:-140px;top:-110px}
+.aura:after{content:"";position:absolute;width:360px;height:360px;border-radius:999px;background:rgba(255,255,255,.045);filter:blur(54px);right:-120px;top:140px}
+.glass{background:rgba(18,18,19,.64);border:1px solid rgba(214,175,94,.16);backdrop-filter:blur(24px);box-shadow:0 28px 100px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.065)}
+.goldBtn{background:linear-gradient(135deg,#fff1b6,#d6af5e 58%,#825b17);color:#080808;box-shadow:0 20px 48px rgba(214,175,94,.2)}
+.input{background:rgba(35,34,35,.72)!important;border:1px solid rgba(214,175,94,.18)!important;color:white!important}
+.input:focus{outline:0!important;border-color:rgba(214,175,94,.55)!important;box-shadow:0 0 0 3px rgba(214,175,94,.13),0 0 28px rgba(214,175,94,.10)!important}
+.splash{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 28%,rgba(214,175,94,.24),transparent 34%),#050505;transition:.5s}
+.splash.hide{opacity:0;pointer-events:none;transform:scale(1.02)}
+.logoLux{background:linear-gradient(145deg,rgba(214,175,94,.24),rgba(255,255,255,.05));border:1px solid rgba(214,175,94,.55);box-shadow:0 0 80px rgba(214,175,94,.18),inset 0 1px 0 rgba(255,255,255,.16)}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:999;max-width:760px;margin:auto;display:none}
+.toast.show{display:block;animation:pop .16s ease}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.page{display:none}.page.active{display:block;animation:fade .18s ease}@keyframes fade{from{opacity:.45;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.navActive{color:#d6af5e!important;text-shadow:0 0 20px rgba(214,175,94,.3)}
+.statusDot{width:9px;height:9px;border-radius:99px;background:#75ff9d;box-shadow:0 0 18px rgba(117,255,157,.7)}.statusDot.bad{background:#ff7777;box-shadow:0 0 18px rgba(255,119,119,.55)}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);z-index:900;padding:18px}.modal.show{display:flex}
+.card{transition:.16s ease}.card:hover{transform:translateY(-1px);border-color:rgba(214,175,94,.32)}
+.badge{font-size:10px;font-weight:900;text-transform:uppercase;border-radius:999px;padding:6px 10px;border:1px solid rgba(255,255,255,.12)}
+@media(min-width:1024px){body{padding-bottom:24px}}
+</style>
+</head>
+<body>
+<div class="aura"></div>
+
+<div id="splash" class="splash">
+  <div class="text-center">
+    <div class="logoLux w-32 h-32 mx-auto rounded-[38px] grid place-items-center text-gold2 text-5xl font-black">ADM</div>
+    <div class="mt-6 text-4xl font-black text-gold2 tracking-tight">ADM Panel</div>
+    <div class="mt-2 text-stone-500 text-sm uppercase tracking-[.35em]">Aura Premium License Manager</div>
+  </div>
+</div>
+
+<header class="hidden lg:flex fixed top-0 left-0 right-0 z-50 h-20 px-8 items-center justify-between bg-black/35 backdrop-blur-2xl border-b border-gold/10">
+  <div class="flex items-center gap-4">
+    <div class="logoLux w-12 h-12 rounded-2xl grid place-items-center text-gold2 font-black">ADM</div>
+    <div><div class="font-black text-xl text-gold2 tracking-wide">ADM Panel</div><div class="text-[10px] uppercase tracking-[.32em] text-stone-500">Aura Premium</div></div>
+  </div>
+  <nav class="flex gap-8 text-xs uppercase font-black tracking-widest">
+    <button id="top-dashboard" onclick="page('dashboard')" class="navActive">Dashboard</button>
+    <button id="top-create" onclick="page('create')" class="text-stone-500">Создать</button>
+    <button id="top-licenses" onclick="page('licenses')" class="text-stone-500">Лицензии</button>
+    <button id="top-tools" onclick="page('tools')" class="text-stone-500">Tools</button>
+  </nav>
+  <button onclick="loadKeys()" class="glass w-12 h-12 rounded-2xl grid place-items-center text-gold2"><span class="material-symbols-outlined">refresh</span></button>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-4 lg:px-8 pt-5 lg:pt-28">
+  <div class="lg:hidden flex items-center justify-between mb-5">
+    <div class="flex items-center gap-3"><div class="logoLux w-14 h-14 rounded-3xl grid place-items-center text-gold2 font-black">ADM</div><div><div class="text-2xl font-black text-gold2">ADM Panel</div><div class="text-[10px] uppercase tracking-[.25em] text-stone-500">Aura Premium</div></div></div>
+    <button onclick="loadKeys()" class="glass w-12 h-12 rounded-2xl grid place-items-center text-gold2"><span class="material-symbols-outlined">refresh</span></button>
+  </div>
+
+  <div class="glass rounded-[30px] p-4 mb-5 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <span id="connDot" class="statusDot"></span>
+      <div><div id="connTitle" class="font-black text-green-200 text-sm">Проверка подключения...</div><div id="connSub" class="text-xs text-stone-500">Supabase • Asia/Almaty time</div></div>
+    </div>
+    <button onclick="loadKeys()" class="text-gold2 text-xs font-black uppercase tracking-wider">Update</button>
+  </div>
+
+  <section id="page-dashboard" class="page active">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6">
+      <button onclick="setFilter('all');page('licenses')" class="glass card rounded-[28px] p-5 text-left"><div id="sAll" class="text-4xl font-black text-white">0</div><div class="text-xs text-stone-500 font-black uppercase mt-1">Всего</div></button>
+      <button onclick="setFilter('active');page('licenses')" class="glass card rounded-[28px] p-5 text-left"><div id="sAct" class="text-4xl font-black text-gold2">0</div><div class="text-xs text-stone-500 font-black uppercase mt-1">Active</div></button>
+      <button onclick="setFilter('blocked');page('licenses')" class="glass card rounded-[28px] p-5 text-left"><div id="sBlk" class="text-4xl font-black text-red-300">0</div><div class="text-xs text-stone-500 font-black uppercase mt-1">Blocked</div></button>
+      <button onclick="showOnline()" class="glass card rounded-[28px] p-5 text-left"><div id="sOn" class="text-4xl font-black text-green-300">0</div><div class="text-xs text-stone-500 font-black uppercase mt-1">Online</div></button>
+    </div>
+    <div class="grid lg:grid-cols-12 gap-5">
+      <div class="lg:col-span-7 glass rounded-[34px] p-6">
+        <div class="flex items-center justify-between mb-5"><div><h2 class="text-2xl font-black text-gold2">Быстрый обзор</h2><p class="text-stone-500 text-sm">Последние лицензии и состояние клиентов</p></div><span class="material-symbols-outlined text-gold2">analytics</span></div>
+        <div id="recentList" class="space-y-3"></div>
+      </div>
+      <div class="lg:col-span-5 glass rounded-[34px] p-6">
+        <h2 class="text-2xl font-black text-gold2 mb-2">Быстрые действия</h2>
+        <p class="text-stone-500 text-sm mb-5">Управление в один тап</p>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="page('create')" class="goldBtn rounded-3xl py-5 font-black">Создать</button>
+          <button onclick="page('licenses')" class="glass rounded-3xl py-5 font-black">Лицензии</button>
+          <button onclick="exportJson()" class="glass rounded-3xl py-5 font-black">Export</button>
+          <button onclick="copyAllKeys()" class="glass rounded-3xl py-5 font-black">Copy Keys</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-create" class="page">
+    <div class="max-w-2xl mx-auto glass rounded-[38px] p-6 lg:p-8">
+      <div class="flex items-start justify-between mb-6"><div><h2 class="text-3xl font-black text-gold2">Создать лицензию</h2><p class="text-stone-500 text-sm mt-1">Новый ключ для клиента</p></div><span class="material-symbols-outlined text-gold2 text-4xl">add_moderator</span></div>
+      <label class="text-xs uppercase tracking-wider text-stone-400 font-black">Ключ</label>
+      <div class="flex gap-2 mt-2"><input id="key" class="input flex-1 rounded-3xl px-5 py-4 font-bold" placeholder="ETM-XXXX-XXXX-XXXX"><button onclick="generateKey()" class="glass rounded-3xl px-5 text-gold2"><span class="material-symbols-outlined">key</span></button></div>
+      <label class="text-xs uppercase tracking-wider text-stone-400 font-black mt-5 block">Клиент / клуб</label>
+      <input id="client" class="input w-full rounded-3xl px-5 py-4 font-bold mt-2" placeholder="Например: Avatar PS Club">
+      <div class="grid grid-cols-2 gap-3 mt-5">
+        <div><label class="text-xs uppercase tracking-wider text-stone-400 font-black">Срок</label><select id="period" class="input w-full rounded-3xl px-5 py-4 font-bold mt-2"><option value="7">7 дней</option><option value="30">30 дней</option><option value="90">90 дней</option><option value="365">1 год</option><option value="lifetime">Навсегда</option></select></div>
+        <div><label class="text-xs uppercase tracking-wider text-stone-400 font-black">Статус</label><select id="newStatus" class="input w-full rounded-3xl px-5 py-4 font-bold mt-2"><option value="active">active</option><option value="blocked">blocked</option></select></div>
+      </div>
+      <button onclick="addKey()" class="goldBtn w-full rounded-3xl py-5 mt-7 font-black uppercase tracking-wider">Создать лицензию</button>
+      <button onclick="clearForm()" class="glass w-full rounded-3xl py-4 mt-3 font-black uppercase tracking-wider text-stone-300">Очистить</button>
+    </div>
+  </section>
+
+  <section id="page-licenses" class="page">
+    <div class="glass rounded-[34px] p-4 mb-5">
+      <div class="grid lg:grid-cols-[1fr_220px_140px] gap-3">
+        <div class="relative"><span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-stone-500">search</span><input id="search" oninput="render()" class="input w-full rounded-full pl-12 pr-5 py-4 font-bold" placeholder="Поиск: клиент, ключ, Device ID"></div>
+        <select id="sortMode" onchange="render()" class="input rounded-full px-5 py-4 font-bold"><option value="new">Сначала новые</option><option value="old">Сначала старые</option><option value="client">По клиенту</option><option value="expire">По сроку</option></select>
+        <button onclick="loadKeys()" class="goldBtn rounded-full px-5 py-4 font-black">Обновить</button>
+      </div>
+    </div>
+    <div id="list" class="grid gap-4"></div>
+  </section>
+
+  <section id="page-tools" class="page">
+    <div class="grid lg:grid-cols-2 gap-5">
+      <button onclick="exportJson()" class="glass card rounded-[34px] p-7 text-left"><div class="text-2xl font-black text-gold2">Экспорт JSON</div><div class="text-stone-500 mt-2">Скачать список лицензий</div></button>
+      <button onclick="copyAllKeys()" class="glass card rounded-[34px] p-7 text-left"><div class="text-2xl font-black text-gold2">Copy All Keys</div><div class="text-stone-500 mt-2">Скопировать все ключи</div></button>
+      <button onclick="showExpiring()" class="glass card rounded-[34px] p-7 text-left"><div class="text-2xl font-black text-gold2">Скоро истекают</div><div class="text-stone-500 mt-2">Фильтр до 7 дней</div></button>
+      <button onclick="showOnline()" class="glass card rounded-[34px] p-7 text-left"><div class="text-2xl font-black text-gold2">Online сейчас</div><div class="text-stone-500 mt-2">Клиенты по last_seen</div></button>
+    </div>
+  </section>
+</main>
+
+<nav class="lg:hidden fixed left-3 right-3 bottom-[calc(10px+env(safe-area-inset-bottom))] z-50 glass rounded-[30px] p-2 grid grid-cols-4 gap-1 text-[10px] uppercase font-black tracking-wider">
+  <button id="nav-dashboard" onclick="page('dashboard')" class="navActive rounded-3xl py-2"><span class="material-symbols-outlined block mx-auto mb-1">dashboard</span>Home</button>
+  <button id="nav-create" onclick="page('create')" class="text-stone-500 rounded-3xl py-2"><span class="material-symbols-outlined block mx-auto mb-1">add_circle</span>Create</button>
+  <button id="nav-licenses" onclick="page('licenses')" class="text-stone-500 rounded-3xl py-2"><span class="material-symbols-outlined block mx-auto mb-1">verified_user</span>Keys</button>
+  <button id="nav-tools" onclick="page('tools')" class="text-stone-500 rounded-3xl py-2"><span class="material-symbols-outlined block mx-auto mb-1">construction</span>Tools</button>
+</nav>
+
+<div id="toast" class="toast glass rounded-3xl p-4 font-black text-gold2"></div>
+<div id="detailsModal" class="modal"><div class="glass rounded-[36px] p-6 max-w-xl w-full"><div class="flex justify-between gap-4 mb-5"><div><h3 class="text-2xl font-black text-gold2">Детали лицензии</h3><p class="text-stone-500 text-sm">Полная информация</p></div><button onclick="closeDetails()" class="text-stone-400"><span class="material-symbols-outlined">close</span></button></div><div id="detailsBody" class="text-stone-300 text-sm leading-7"></div></div></div>
+
+<script>
+const SUPABASE_URL="https://fyggrpvpwmomavcbxnfm.supabase.co";
+const SUPABASE_KEY="sb_publishable_rpUMWnPR_S5EqxsvZnNDEA_4D_mYbcD";
+let sb=null,data=[],filter="all";
+const KZ_TZ="Asia/Almaty";
+
+function toast(t,d=false){const e=document.getElementById("toast");e.innerText=t;e.className="toast glass rounded-3xl p-4 font-black show "+(d?"text-red-300":"text-gold2");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2300)}
+function conn(ok,title,sub){document.getElementById("connTitle").innerText=title;document.getElementById("connSub").innerText=sub||"Supabase";document.getElementById("connTitle").className="font-black text-sm "+(ok?"text-green-200":"text-red-200");document.getElementById("connDot").className="statusDot "+(ok?"":"bad")}
+function init(){try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);conn(true,"Подключено","Supabase online • Kazakhstan time");return true}catch(e){conn(false,"Ошибка подключения",e.message);return false}}
+function req(){if(!sb)init();if(!sb){toast("Нет подключения",true);return false}return true}
+function page(name){["dashboard","create","licenses","tools"].forEach(x=>{document.getElementById("page-"+x)?.classList.remove("active");document.getElementById("nav-"+x)?.classList.remove("navActive");document.getElementById("top-"+x)?.classList.remove("navActive");document.getElementById("nav-"+x)?.classList.add("text-stone-500");document.getElementById("top-"+x)?.classList.add("text-stone-500")});document.getElementById("page-"+name)?.classList.add("active");["nav-"+name,"top-"+name].forEach(id=>{let e=document.getElementById(id);if(e){e.classList.add("navActive");e.classList.remove("text-stone-500")}});if(name==="licenses")loadKeys()}
+function generateKey(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";const p=n=>Array.from({length:n},()=>c[Math.floor(Math.random()*c.length)]).join("");document.getElementById("key").value=`ETM-${p(4)}-${p(4)}-${p(4)}`;toast("Ключ создан")}
+function exp(){let p=document.getElementById("period").value;if(p==="lifetime")return null;let d=new Date();d.setDate(d.getDate()+Number(p));return d.toISOString()}
+async function addKey(){if(!req())return;let license_key=document.getElementById("key").value.trim().toUpperCase(),client_name=document.getElementById("client").value.trim(),status=document.getElementById("newStatus").value,expires_at=exp();if(!license_key)return toast("Сначала создай ключ",true);if(!client_name)return toast("Напиши клиента",true);let r=await sb.from("licenses").insert([{license_key,client_name,status,expires_at}]);if(r.error)return toast(r.error.message,true);toast("Лицензия создана");clearForm();await loadKeys();page("licenses")}
+function clearForm(){document.getElementById("client").value="";document.getElementById("period").value="lifetime";document.getElementById("newStatus").value="active";generateKey()}
+async function loadKeys(){if(!req())return;let r=await sb.from("licenses").select("*").order("id",{ascending:false});if(r.error)return toast(r.error.message,true);data=r.data||[];stats();render();recent();conn(true,"Подключено",`Лицензий: ${data.length} • Астана/Алматы`) }
+function isOnline(x){if(!x)return false;return Date.now()-new Date(x).getTime()<2*60*60*1000}
+function stats(){document.getElementById("sAll").innerText=data.length;document.getElementById("sAct").innerText=data.filter(x=>String(x.status).toLowerCase()==="active").length;document.getElementById("sBlk").innerText=data.filter(x=>String(x.status).toLowerCase()==="blocked").length;document.getElementById("sOn").innerText=data.filter(x=>isOnline(x.last_seen)).length}
+function setFilter(f){filter=f;page("licenses");render()}
+function d(x){if(!x)return"Навсегда";try{return new Date(x).toLocaleString("ru-RU",{timeZone:KZ_TZ})}catch{return x}}
+function dateOnly(x){if(!x)return"Навсегда";try{return new Date(x).toLocaleDateString("ru-RU",{timeZone:KZ_TZ})}catch{return x}}
+function days(x){if(!x)return 999999;return Math.ceil((new Date(x)-new Date())/86400000)}
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
+function escA(v){return String(v??"").replaceAll("\\","\\\\").replaceAll("'","\\'").replaceAll('"','\\"')}
+function sorted(a){let m=document.getElementById("sortMode")?.value||"new";return [...a].sort((x,y)=>m==="old"?(x.id||0)-(y.id||0):m==="client"?String(x.client_name||"").localeCompare(String(y.client_name||"")):m==="expire"?days(x.expires_at)-days(y.expires_at):(y.id||0)-(x.id||0))}
+function filtered(){let q=(document.getElementById("search")?.value||"").toLowerCase().trim();return sorted(data.filter(x=>{let st=String(x.status||"").toLowerCase();let ok=filter==="all"||st===filter;let s=[x.license_key,x.client_name,x.device_id,x.status].join(" ").toLowerCase();return ok&&(!q||s.includes(q))}))}
+function card(x){let st=String(x.status||"").toLowerCase(),act=st==="active",on=isOnline(x.last_seen),left=days(x.expires_at);return `<div class="glass card rounded-[34px] p-5 relative overflow-hidden"><div class="absolute left-0 top-0 bottom-0 w-1 ${act?"bg-gold2":"bg-red-400"}"></div><div class="flex flex-col lg:flex-row gap-4 justify-between"><div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><h3 class="text-xl font-black text-white truncate max-w-[270px]">${esc(x.client_name||"-")}</h3><span class="badge ${act?"text-gold2 bg-gold/10 border-gold/20":"text-red-300 bg-red-400/10 border-red-400/20"}">${esc(x.status)}</span><span class="badge ${on?"text-green-300 bg-green-400/10 border-green-400/20":"text-stone-400 bg-stone-700/20 border-stone-600/20"}">${on?"online":"offline"}</span>${left<=7&&left>=0?`<span class="badge text-orange-300 bg-orange-400/10 border-orange-400/20">${left} дн.</span>`:""}</div><div class="mt-3 flex items-center gap-2"><span class="font-mono text-gold2 bg-black/30 px-2 py-1 rounded-lg break-all">${esc(x.license_key||"")}</span><button onclick="copyKey('${escA(x.license_key)}')" class="text-stone-400 hover:text-gold2"><span class="material-symbols-outlined text-[18px]">content_copy</span></button></div><div class="grid md:grid-cols-2 gap-2 mt-3 text-xs text-stone-400"><div>Device: <b class="text-stone-300">${esc(x.device_id||"не активирован")}</b></div><div>Срок: <b class="text-stone-300">${esc(dateOnly(x.expires_at))}</b></div><div>Last seen: <b class="text-stone-300">${esc(d(x.last_seen))}</b></div><div>ID: <b class="text-stone-300">${x.id}</b></div></div></div><div class="grid grid-cols-5 lg:grid-cols-1 gap-2 lg:border-l border-gold/10 lg:pl-4"><button onclick="details(${x.id})" class="glass rounded-2xl p-2 text-stone-300"><span class="material-symbols-outlined">visibility</span></button><button onclick="setStatus(${x.id},'active')" class="glass rounded-2xl p-2 text-green-300"><span class="material-symbols-outlined">check_circle</span></button><button onclick="setStatus(${x.id},'blocked')" class="glass rounded-2xl p-2 text-red-300"><span class="material-symbols-outlined">block</span></button><button onclick="resetDevice(${x.id})" class="glass rounded-2xl p-2 text-blue-300"><span class="material-symbols-outlined">devices_off</span></button><button onclick="deleteKey(${x.id})" class="glass rounded-2xl p-2 text-red-300"><span class="material-symbols-outlined">delete</span></button></div></div></div>`}
+function render(){let arr=filtered();document.getElementById("list").innerHTML=arr.length?arr.map(card).join(""):`<div class="glass rounded-[34px] p-10 text-center text-stone-500 font-black">Ничего не найдено</div>`}
+function recent(){let box=document.getElementById("recentList");if(!box)return;box.innerHTML=data.slice(0,5).map(x=>`<div class="flex items-center justify-between gap-3 glass rounded-3xl p-3"><div class="min-w-0"><div class="font-black text-white truncate">${esc(x.client_name||"-")}</div><div class="text-xs text-stone-500 truncate">${esc(x.license_key||"")}</div></div><span class="badge ${String(x.status).toLowerCase()==="active"?"text-gold2 bg-gold/10":"text-red-300 bg-red-400/10"}">${esc(x.status)}</span></div>`).join("")}
+async function setStatus(id,status){let r=await sb.from("licenses").update({status}).eq("id",id);if(r.error)return toast(r.error.message,true);toast(status==="active"?"Активировано":"Заблокировано");loadKeys()}
+async function resetDevice(id){if(!confirm("Сбросить Device ID?"))return;let r=await sb.from("licenses").update({device_id:null}).eq("id",id);if(r.error)return toast(r.error.message,true);toast("Device сброшен");loadKeys()}
+async function deleteKey(id){if(!confirm("Удалить лицензию?"))return;let r=await sb.from("licenses").delete().eq("id",id);if(r.error)return toast(r.error.message,true);toast("Удалено");loadKeys()}
+async function copyKey(k){try{await navigator.clipboard.writeText(k);toast("Ключ скопирован")}catch{toast(k)}}
+function details(id){let x=data.find(v=>v.id===id);if(!x)return;document.getElementById("detailsBody").innerHTML=`<div class="space-y-2"><div><b>Клиент:</b> ${esc(x.client_name)}</div><div><b>Ключ:</b> ${esc(x.license_key)}</div><div><b>Статус:</b> ${esc(x.status)}</div><div><b>Device:</b> ${esc(x.device_id||"не активирован")}</div><div><b>Срок:</b> ${esc(dateOnly(x.expires_at))}</div><div><b>Last seen:</b> ${esc(d(x.last_seen))}</div><div><b>ID:</b> ${x.id}</div></div>`;document.getElementById("detailsModal").classList.add("show")}
+function closeDetails(){document.getElementById("detailsModal").classList.remove("show")}
+function exportJson(){let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="adm_licenses.json";a.click();toast("JSON скачан")}
+async function copyAllKeys(){await navigator.clipboard.writeText(data.map(x=>x.license_key).join("\n"));toast("Все ключи скопированы")}
+function showExpiring(){page("licenses");let n=data.filter(x=>days(x.expires_at)<=7).length;toast("Скоро истекают: "+n)}
+function showOnline(){page("licenses");toast("Online сейчас: "+data.filter(x=>isOnline(x.last_seen)).length)}
+setTimeout(()=>document.getElementById("splash").classList.add("hide"),950);
+generateKey();init();setTimeout(loadKeys,500);
+</script>
+</body>
+</html>
